@@ -46,18 +46,17 @@ bfs' m end ((currPos, posDist):rest) seen
       posDist' = rest ++ map (, posDist + 1) newNeighbors
 bfs' _ _ _ _ = -1
 
-bfs m s e = bfs' m e [startDistance] Set.empty where startDistance = (findStart m, 0)
-
-climb :: Matrix -> Int
-climb m = bfs m Start End
+climb :: Matrix -> Pos -> Step -> Int
+climb m sPos e = bfs' m e [(sPos, 0)] Set.empty
 
 findStep :: Step -> Matrix -> Pos
 findStep s = fst . fromJust . find ((s ==) . snd) . A.assocs
-findStart = findStep Start
+
+findAPos = map fst . filter ((Step 'a' ==) . snd) . A.assocs
 
 main = do
     input <- readFile "input"
     let steps = parse input
     let m = matrix steps
-    print $ climb m
-
+    print $ climb m (findStep Start m) End
+    print $ minimum $ filter (> 0) $ map (\pos -> climb m pos End) (findAPos m)
